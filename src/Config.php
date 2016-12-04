@@ -371,6 +371,12 @@ class Config
             $general['branding']['provided_by']
         );
 
+        // Add some common 'development' hosts to the `debug_local_domains` setting:
+        $general['debug_local_domains'] = array_unique(array_merge(
+            (array) $general['debug_local_domains'],
+            ['.dev', 'dev.', 'devel.', 'development.', 'test.', '.test', 'new.', '.new', 'localhost', '.local', 'local.']
+        ));
+
         $general['database'] = $this->parseDatabase($general['database']);
 
         return $general;
@@ -1129,6 +1135,7 @@ class Config
             'debug_error_use_symfony'     => false,
             'debug_permission_audit_mode' => false,
             'debug_trace_argument_limit'  => 4,
+            'debug_local_domains'         => [],
             'strict_variables'            => null,
             'theme'                       => 'base-2016',
             'listing_template'            => 'listing.twig',

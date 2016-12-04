@@ -41,7 +41,8 @@ class GeneralListener implements EventSubscriberInterface
         $request = $event->getRequest();
 
         $this->mailConfigCheck($request);
-        $this->gdCheck($request);
+        $this->gdCheck();
+        $this->liveCheck($request);
     }
 
     /**
@@ -72,7 +73,7 @@ class GeneralListener implements EventSubscriberInterface
         }
 
         if (!$this->app['config']->get('general/mailoptions') && $this->app['users']->getCurrentuser() && $this->app['users']->isAllowed('files:config')) {
-            $notice = "The mail configuration parameters have not been set up. This may interfere with password resets, and extension functionality. Please set up the 'mailoptions' in config.yml.";
+            $notice = "The <strong>mail configuration parameters</strong> have not been set up. This may interfere with password resets, and extension functionality. Please set up the <tt>mailoptions</tt> in config.yml.";
             $this->app['logger.flash']->configuration(Trans::__($notice));
         }
     }
@@ -83,9 +84,26 @@ class GeneralListener implements EventSubscriberInterface
     protected function gdCheck()
     {
         if (!function_exists('imagecreatetruecolor')) {
-            $notice = "The current version of PHP doesn't have the GD library enabled. Without this, Bolt will not be able to generate thumbnails. Please enable <tt>php-gd</tt>, or ask your system-administrator to do so.";
+            $notice = "The current version of PHP doesn't have the <strong>GD library enabled</strong>. Without this, Bolt will not be able to generate thumbnails. Please enable <tt>php-gd</tt>, or ask your system-administrator to do so.";
             $this->app['logger.flash']->configuration(Trans::__($notice));
         }
+    }
+
+
+    /**
+     * Check whether the site is live or not.
+     */
+    protected function liveCheck(Request $request)
+    {
+        $host = $request->getHttpHost();
+        $domainpartials = $this->app['config']->get('general/debug_local_domains');
+        foreach($domainpartials as $partial) {
+            if (strpos($host, $partial) !== false) {
+                return;
+            }
+        }
+        $notice = "It seems like this website is running on a <strong>non-development environment</strong>, while 'debug' is enabled. Make sure debug is disabled in production environments. Failure to do so will result in an extremely large <tt>app/cache</tt>-folder and reduced performance.";
+        $this->app['logger.flash']->configuration(Trans::__($notice));
     }
 
     /**
