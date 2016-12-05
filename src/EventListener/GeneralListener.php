@@ -3,6 +3,7 @@ namespace Bolt\EventListener;
 
 use Bolt\Controller\Zone;
 use Bolt\Translation\Translator as Trans;
+use Bolt\Version;
 use Silex\Application;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,6 +43,7 @@ class GeneralListener implements EventSubscriberInterface
 
         $this->mailConfigCheck($request);
         $this->liveCheck($request);
+        $this->developmentCheck();
         $this->gdCheck();
     }
 
@@ -109,6 +111,18 @@ class GeneralListener implements EventSubscriberInterface
         $notice = "It seems like this website is running on a <strong>non-development environment</strong>, while 'debug' is enabled. Make sure debug is disabled in production environments. Failure to do so will result in an extremely large <tt>app/cache</tt> folder and reduced performance.";
         $this->app['logger.flash']->configuration(Trans::__($notice));
     }
+
+    /**
+     * Check whether or not we're running an alpha, beta or RC, and warn about that.
+     */
+    protected function developmentCheck()
+    {
+        if (!Version::isStable()) {
+            $notice = "This is a <strong>development version of Bolt</strong>, so it might contain bugs and unfinished features. Use at your own risk! For 'production' websites, we advise you to stick with the official stable releases.";
+            $this->app['logger.flash']->configuration(Trans::__($notice));
+        }
+    }
+
 
     /**
      * Set the 'X-Frame-Options' headers to prevent click-jacking, unless

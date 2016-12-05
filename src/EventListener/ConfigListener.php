@@ -161,6 +161,8 @@ class ConfigListener implements EventSubscriberInterface
             $usersCur = null;
         }
 
+        $twig->addGlobal('bolt_name', Version::name());
+        $twig->addGlobal('bolt_version', Version::VERSION);
         $twig->addGlobal('frontend', $zone === Zone::FRONTEND);
         $twig->addGlobal('backend', $zone === Zone::BACKEND);
         $twig->addGlobal('async', $zone === Zone::ASYNC);
