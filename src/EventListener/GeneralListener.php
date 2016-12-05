@@ -41,8 +41,8 @@ class GeneralListener implements EventSubscriberInterface
         $request = $event->getRequest();
 
         $this->mailConfigCheck($request);
-        $this->gdCheck();
         $this->liveCheck($request);
+        $this->gdCheck();
     }
 
     /**
@@ -95,6 +95,10 @@ class GeneralListener implements EventSubscriberInterface
      */
     protected function liveCheck(Request $request)
     {
+        if (!$this->app['debug']) {
+            return;
+        }
+
         $host = $request->getHttpHost();
         $domainpartials = $this->app['config']->get('general/debug_local_domains');
         foreach ($domainpartials as $partial) {
@@ -102,7 +106,7 @@ class GeneralListener implements EventSubscriberInterface
                 return;
             }
         }
-        $notice = "It seems like this website is running on a <strong>non-development environment</strong>, while 'debug' is enabled. Make sure debug is disabled in production environments. Failure to do so will result in an extremely large <tt>app/cache</tt>-folder and reduced performance.";
+        $notice = "It seems like this website is running on a <strong>non-development environment</strong>, while 'debug' is enabled. Make sure debug is disabled in production environments. Failure to do so will result in an extremely large <tt>app/cache</tt> folder and reduced performance.";
         $this->app['logger.flash']->configuration(Trans::__($notice));
     }
 
