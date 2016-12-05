@@ -102,7 +102,7 @@ class GeneralListener implements EventSubscriberInterface
         }
 
         $host = $request->getHttpHost();
-        $domainpartials = $this->app['config']->get('general/debug_local_domains');
+        $domainpartials = $this->app['config']->get('general/debug_local_domains', []);
         foreach ($domainpartials as $partial) {
             if (strpos($host, $partial) !== false) {
                 return;
